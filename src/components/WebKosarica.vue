@@ -1,17 +1,10 @@
 <script setup>
+
 import { ref, reactive, computed } from 'vue'
+
 const proizvodi = reactive([])
 const inputNaziv = ref("")
 const inputCijena = ref("")
-
-
-const ukupnoProizvod = (proizvodCijena, proizvodKolicina) => {
-  return proizvodCijena * proizvodKolicina
-}
-
-const provjeraProzivoda = (naziv) => {
-  return proizvodi.findIndex((proizvod) => proizvod.proizvodNaziv === naziv)
-}
 
 
 const dodaj = (naziv, cijena) => {
@@ -24,11 +17,10 @@ if(provjera >= 0) {
   return
 }
 
-if(cijena < 0) {
-  cijena = 0
-  alert("Cijena ne smije biti manja od 0")
+if(cijena <= 0) {
+  cijena = 1//Cisto da nije 0 
+  alert("Cijena ne smije biti manja ili jednaka 0")
 }
-
 
   proizvodi.push({
     proizvodNaziv: naziv,
@@ -40,13 +32,23 @@ if(cijena < 0) {
   inputCijena.value = ""
 }
 
+
+const ukupnoProizvod = (proizvodCijena, proizvodKolicina) => {
+  return proizvodCijena * proizvodKolicina
+}
+
+const provjeraProzivoda = (naziv) => {
+  return proizvodi.findIndex((proizvod) => proizvod.proizvodNaziv === naziv)
+}
+
 const smanji = (index) => {
-  if(proizvodi[index].proizvodKolicina <= 0) {
+  if(proizvodi[index].proizvodKolicina === 0) {
     return
   }
   proizvodi[index].proizvodKolicina--
 
 }
+
 const povecaj = (index) => {
   proizvodi[index].proizvodKolicina++
 }
@@ -56,24 +58,16 @@ const obrisi = (index) => {
   proizvodi.splice(index, 1)
 }
 
-
-const ukupnoKosarica = () => {
-  let ukupno = 0;
-  proizvodi.forEach((item) => {
-    ukupno += item.proizvodKolicina * item.proizvodCijena;
-  })
-
-  return ukupno
-}
-
-
-
+const ukupnoKosarica = computed(() => {
+  return proizvodi.reduce((accumullator, item) => {
+    return accumullator + item.proizvodKolicina * item.proizvodCijena
+  }, 0)
+})
 
 </script>
 
 
 <template>
-
 
 <div class="min-w-6xl p-6 flex flex-col gap-1.5 rounded-md shadow-md bg-gray-100 border border-gray-200">
   <h2 class="text-3xl font-medium">Košarica</h2>
@@ -81,9 +75,9 @@ const ukupnoKosarica = () => {
 
   <div class="w-full min-h-20 flex items-center justify-between py-2 px-4">
     <label class="">Naziv proizvoda:</label>
-    <input type="text" class="border rounded-sm p-1 max-h-[32px]" v-model="inputNaziv"/>
+    <input placeholder="Upišite naziv proizvoda" type="text" class="border rounded-sm p-1 max-h-[32px]" v-model="inputNaziv"/>
     <label class="">Cijena proizvoda:</label>
-    <input type="number" class="border rounded-sm max-h-[32px] p-1" v-model="inputCijena"/>
+    <input placeholder="Upišite cijenu proizvoda" type="number" class="border rounded-sm max-h-[32px] p-1" v-model="inputCijena"/>
     <button :disabled="!inputNaziv" :class="inputNaziv ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'"  class="py-1 px-2 rounded-md bg-green-400 shadow-md" @click="dodaj(inputNaziv, inputCijena)">Dodaj artikl</button>
   </div>
   <hr class="border-gray-200 border mt-1"/>
@@ -91,7 +85,7 @@ const ukupnoKosarica = () => {
   <table class="table-auto mt-3 w-full bg-white rounded-md shadow-lg">
  <thead class="h-7 w-full">
   <tr v-if="proizvodi.length === 0">
-    <th>Kosarica je prazna</th>
+    <th>Košarica je prazna</th>
   </tr>
     <tr v-else>
       <th>Naziv</th>
@@ -120,7 +114,7 @@ const ukupnoKosarica = () => {
     <td class="text-center">
       {{ ukupnoProizvod(proizvod.proizvodCijena, proizvod.proizvodKolicina) }}
     </td>
-    <td  @click="obrisi(index)" class="py-2 text-center text-red-600">
+    <td  @click="obrisi(index)" class="py-2 text-center text-red-600 cursor-pointer">
      Ukloni
     </td>
     </tr>
@@ -128,13 +122,7 @@ const ukupnoKosarica = () => {
   </table>
 
 <hr class="border-gray-200 border mt-5"/>
-<span>Ukupno: {{ ukupnoKosarica() }}</span>
-
+<span>Ukupno: {{ ukupnoKosarica.toFixed(2) }}</span>
 </div>
-
-
-
-
-
 
 </template>

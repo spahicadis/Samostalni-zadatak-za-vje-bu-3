@@ -5,7 +5,7 @@ import WebKosarica from '@/components/WebKosarica.vue'
 <template>
   <div class="h-screen w-full p-5 flex items-center justify-center">
     
-<WebKosarica/>
+  <WebKosarica/>
 
   </div>
 </template>
